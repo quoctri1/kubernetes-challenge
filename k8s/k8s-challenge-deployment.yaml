@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-challenge
+  labels:
+    app: k8s-challenge
+spec:
+  selector:
+    matchLabels:
+      app: k8s-challenge
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: k8s-challenge
+    spec:
+      containers:
+      - name: k8s-challenge
+        image: k8s-challenge-image:1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 4000
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 5
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "100m"
+          limits:
+            memory: "50Mi"
+            cpu: "100m"
+        envFrom:
+        - configMapRef:
+            name: k8s-challenge-cm
